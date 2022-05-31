@@ -1,7 +1,6 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Button, Card, Grid, TextField, Typography } from '@mui/material'
-import ReCAPTCHA from "react-google-recaptcha"
 
 import ComponentCardCenter from '../ui/ContainerCardCenter'
 import commonSX from '../../theme/CommonSX'
@@ -16,23 +15,6 @@ const cleanFormData = {
 }
 
 const LoginScreen = () => {
-
-    // crear un variable de estado para captcha
-    const [captchaValido, setCaptchaValido] = useState(null) ;
-
-    // crear referencia al checkbox 'recaptcha'
-    const captcha = useRef(null)
-
-    // crear funcion de evento onChange
-    const onChange = () => {
-        if(captcha.current.getValue()){
-            setCaptchaValido(true) ;    
-            console.log("google regreso un token y no es un robot") ;
-        }
-        else{
-            console.log("Detectado como robot") ;
-        }   
-    }
 
     // Redirigir al inicio si ya esta logueado
     const data = window.localStorage.getItem('token')
@@ -62,22 +44,17 @@ const LoginScreen = () => {
 
     // Enviar el formulario
     const submitForm = () => {
-        if(captchaValido){
-            LogIn(formData).then((response) => {
-                if (response.status === 200) {
-                    const { data } = response
-                    window.localStorage.setItem('token', data.access_token)
-                    navigate('/')
-                } else {
-                    setIsError(true)
-                    setErrorMessage(response.data.detail)
-                }
-            })
-            setFormValues(cleanFormData)
-        }
-        else{
-            setCaptchaValido(false) ;
-        }
+        LogIn(formData).then((response) => {
+            if (response.status === 200) {
+                const { data } = response
+                window.localStorage.setItem('token', data.access_token)
+                navigate('/')
+            } else {
+                setIsError(true)
+                setErrorMessage(response.data.detail)
+            }
+        })
+        setFormValues(cleanFormData)
     }
 
     if (isError) {
@@ -122,15 +99,7 @@ const LoginScreen = () => {
                         <Grid item xs={12}>
                             <Card variant='outlined'>
                                 <Typography variant='body1'>
-                                    <div className='recaptcha'>
-                                        <ReCAPTCHA
-                                            ref={captcha}
-                                            sitekey='6LdL-yMgAAAAAFaW2_5KwUlT5FXJjZYaPQd7fFbP'
-                                            /*sitekey={process.env.API_KEY_RECAPTCHA_GOOGLE}*/
-                                            onChange={onChange}
-                                        />   
-                                    </div>
-                                    {captchaValido === false && <div style={{color:'red'}}>Selecciona el captcha para continuar</div>}
+                                    No soy un robot
                                 </Typography>
                             </Card>
                         </Grid>
